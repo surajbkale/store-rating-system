@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const authenticateToken = require("./middleware/authMiddleware");
 const authorizeRoles = require("./middleware/roleMiddleware");
 const storeRoutes = require("./routes/storeRoutes");
+const ratingRoutes = require("./routes/ratingRoutes");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/stores", storeRoutes);
+app.use("/api/ratings", ratingRoutes);
 
 // Health check route
 app.get("/", (req, res) => {

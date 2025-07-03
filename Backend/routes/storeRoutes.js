@@ -100,4 +100,69 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
+// Store owner dashboard route
+router.get(
+  "/:storeId/ratings",
+  authenticateToken,
+  authorizeRoles("owner"),
+  async (req, res) => {
+    try {
+      const store_id = parseInt(req.params.storeId);
+
+      // checking if the store belongs to the current owner
+      const store = await prisma.store.findUnique({
+        where: { id: store_id },
+      });
+
+      if (!store) {
+        return res.status(404).json({
+          error: "store not found",
+        });
+      }
+
+      if (store.owner_id !== req.user.id) {
+        return res.status(403).json({
+          error: "Access denied to this store",
+        });
+      }
+
+      // Fetching ratings with user details
+      const ratings = await prisma.rating.findMany({
+        where: { store_id },
+        include: { user: true },
+      });
+
+      const avgRating =
+        ratings.length > 0
+          ? (
+              ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+            ).toFixed(2)
+          : null;
+
+      const response = {
+        store: {
+          id: store.id,
+          name: store.name,
+          email: store.email,
+          address: store.address,
+          image_url: store.image_url,
+          average_rating: avgRating,
+        },
+        ratings: ratings.map((r) => ({
+          id: r.id,
+          user_name: r.user.name,
+          user_email: r.user.email,
+          rating: r.rating,
+          created_at: r.created_at,
+        })),
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+);
+
 module.exports = router;

@@ -15,7 +15,7 @@ function StoreListPage() {
     try {
       const res = await api.get("/stores", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        params: { search }, // always include search param
+        params: { search },
       });
       setStores(res.data);
     } catch (err) {
@@ -26,7 +26,7 @@ function StoreListPage() {
 
   useEffect(() => {
     fetchStores();
-  }, []); // only fetch once on page load
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -36,7 +36,6 @@ function StoreListPage() {
   const handleRate = async (store, ratingValue) => {
     if (!ratingValue) {
       toast.warn("Please select a rating first.");
-
       return;
     }
 
@@ -54,10 +53,7 @@ function StoreListPage() {
       } else {
         await api.post(
           "/ratings",
-          {
-            store_id: store.id,
-            rating: ratingValue,
-          },
+          { store_id: store.id, rating: ratingValue },
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -74,12 +70,14 @@ function StoreListPage() {
     }
   };
 
+  const defaultImg = "/store.png";
+
   return (
     <>
       <NavBar />
 
-      <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Store List</h1>
+      <div className="p-6 max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Store List</h1>
 
         <form onSubmit={handleSearch} className="mb-6 flex gap-3">
           <input
@@ -99,33 +97,33 @@ function StoreListPage() {
 
         {error && <p className="text-red-500">{error}</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {stores.map((store) => (
             <motion.div
               key={store.id}
-              className="p-4 border rounded shadow hover:shadow-lg transition"
+              className="border rounded p-4 space-y-3 shadow hover:shadow-lg transition"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
               <img
-                src={store.image_url || "https://via.placeholder.com/150"}
+                src={store.image_url || defaultImg}
                 alt={store.name}
-                className="w-full h-40 object-cover mb-3 rounded"
+                className="w-36 h-36 object-contain mx-auto rounded mb-3"
               />
-              <h2 className="text-xl font-bold mb-1">{store.name}</h2>
-              <p className="text-gray-600 mb-2">{store.address}</p>
-              <p>
+
+              <h2 className="text-xl font-bold text-center">{store.name}</h2>
+              <p className="text-gray-600 text-center">{store.address}</p>
+              <p className="text-center">
                 <strong>Average Rating:</strong>{" "}
                 {store.average_rating || "No Ratings"}
               </p>
-              <p>
+              <p className="text-center">
                 <strong>Your Rating:</strong>{" "}
                 {store.your_rating || "Not rated yet"}
               </p>
 
-              {/* Star Rating */}
-              <div className="mt-3 flex items-center gap-1">
+              <div className="flex items-center justify-center gap-1 mt-3">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <motion.div
                     key={num}
@@ -137,7 +135,7 @@ function StoreListPage() {
                       className={`cursor-pointer text-2xl ${
                         selectedRatings[store.id] >= num
                           ? "text-yellow-400"
-                          : "text-gray-400"
+                          : "text-gray-300"
                       }`}
                       onClick={() =>
                         setSelectedRatings({
@@ -148,14 +146,14 @@ function StoreListPage() {
                     />
                   </motion.div>
                 ))}
-
-                <button
-                  onClick={() => handleRate(store, selectedRatings[store.id])}
-                  className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 ml-2"
-                >
-                  {store.your_rating ? "Update" : "Submit"}
-                </button>
               </div>
+
+              <button
+                onClick={() => handleRate(store, selectedRatings[store.id])}
+                className="block mx-auto mt-3 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                {store.your_rating ? "Update" : "Submit"}
+              </button>
             </motion.div>
           ))}
         </div>

@@ -10,6 +10,7 @@ function AddStorePage() {
     email: "",
     address: "",
     owner_id: "",
+    image_url: "",
   });
 
   const navigate = useNavigate();
@@ -75,6 +76,15 @@ function AddStorePage() {
             onChange={handleChange}
             className="border p-2 w-full rounded"
           />
+          <input
+            type="text"
+            name="image_url"
+            placeholder="Image URL (optional)"
+            value={form.image_url}
+            onChange={handleChange}
+            className="border p-2 w-full rounded"
+          />
+
           <button
             type="submit"
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full"

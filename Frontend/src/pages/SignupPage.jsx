@@ -14,7 +14,6 @@ const SignupPage = () => {
   });
 
   const [error, setError] = useState("");
-  toast.success("Signup successful. Please login.");
 
   const navigate = useNavigate();
 
@@ -65,6 +64,7 @@ const SignupPage = () => {
 
     try {
       await api.post("/auth/signup", form);
+      toast.success("Signup successful. Please login.");
       navigate("/");
     } catch (err) {
       console.error(err);

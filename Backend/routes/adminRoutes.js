@@ -184,7 +184,7 @@ router.post(
   authorizeRoles("admin"),
   async (req, res) => {
     try {
-      const { name, email, address, owner_id } = req.body;
+      const { name, email, address, owner_id, image_url } = req.body;
 
       if (!name || !email)
         return res.status(400).json({ error: "Name and email required." });
@@ -198,6 +198,7 @@ router.post(
           name,
           email,
           address,
+          image_url: image_url || null,
           owner_id: owner_id ? parseInt(owner_id) : null,
         },
       });

@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 function OwnerDashboardPage() {
   const [storeRatings, setStoreRatings] = useState([]);
-  const [error, setError] = useState("");
+  const defaultImg = "/store.png";
 
   const fetchOwnerStoreRatings = async () => {
     try {
@@ -20,10 +20,9 @@ function OwnerDashboardPage() {
         return;
       }
 
-      setStoreRatings(res.data[0]); // assuming one store per owner
+      setStoreRatings(res.data[0]);
     } catch (err) {
       console.error(err);
-      // setError(err.response?.data?.error || "Failed to fetch store ratings.");
       toast.error("Failed to load ...");
     }
   };
@@ -38,10 +37,13 @@ function OwnerDashboardPage() {
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Store Owner Dashboard</h1>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-
         {storeRatings && (
-          <div className="mb-8 border p-4 rounded shadow">
+          <div className="border p-4 rounded shadow mb-6">
+            <img
+              src={storeRatings.image_url || defaultImg}
+              alt={storeRatings.name}
+              className="h-32 w-32 object-contain mx-auto rounded"
+            />
             <h2 className="text-xl font-bold">{storeRatings.name}</h2>
             <p className="text-gray-600">{storeRatings.address}</p>
             <p className="mt-2">

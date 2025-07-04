@@ -2,6 +2,7 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const authenticateToken = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
+const bcrypt = require("bcrypt");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -145,6 +146,66 @@ router.get(
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
+    }
+  }
+);
+
+// Create new user (admin only)
+router.post(
+  "/users",
+  authenticateToken,
+  authorizeRoles("admin"),
+  async (req, res) => {
+    try {
+      const { name, email, password, address, role } = req.body;
+
+      // Validate inputs (optional but good)
+      if (!name || !email || !password || !role)
+        return res.status(400).json({ error: "All fields required." });
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await prisma.user.create({
+        data: { name, email, password: hashedPassword, address, role },
+      });
+
+      res.status(201).json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to create user." });
+    }
+  }
+);
+
+// Create new store (admin only)
+router.post(
+  "/stores",
+  authenticateToken,
+  authorizeRoles("admin"),
+  async (req, res) => {
+    try {
+      const { name, email, address, owner_id } = req.body;
+
+      if (!name || !email)
+        return res.status(400).json({ error: "Name and email required." });
+
+      if (owner_id && isNaN(parseInt(owner_id))) {
+        return res.status(400).json({ error: "Invalid owner ID." });
+      }
+
+      const store = await prisma.store.create({
+        data: {
+          name,
+          email,
+          address,
+          owner_id: owner_id ? parseInt(owner_id) : null,
+        },
+      });
+
+      res.status(201).json(store);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to create store." });
     }
   }
 );

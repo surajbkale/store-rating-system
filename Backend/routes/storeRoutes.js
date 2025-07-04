@@ -165,4 +165,23 @@ router.get(
   }
 );
 
+router.get(
+  "/my-stores",
+  authenticateToken,
+  authorizeRoles("owner"),
+  async (req, res) => {
+    try {
+      const stores = await prisma.store.findMany({
+        where: { owner_id: req.user.id },
+        include: { ratings: { include: { user: true } } },
+      });
+
+      res.status(200).json(stores);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Failed to fetch owner stores." });
+    }
+  }
+);
+
 module.exports = router;
